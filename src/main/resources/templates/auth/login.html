@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main_layout}">
+<head>
+    <title>Login</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="row justify-content-center align-items-center" style="min-height: 60vh;">
+        <div class="col-md-5 col-lg-4">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-person-circle fs-1 text-primary"></i>
+                        <h3 class="fw-bold mt-2">Welcome Back</h3>
+                        <p class="text-muted">Sign in to your account</p>
+                    </div>
+
+                    <div th:if="${param.error}" class="alert alert-danger d-flex align-items-center" role="alert">
+                        <i class="bi bi-exclamation-circle-fill me-2"></i>
+                        <div>Invalid username or password</div>
+                    </div>
+
+                    <div th:if="${param.logout}" class="alert alert-info d-flex align-items-center" role="alert">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <div>You have been logged out</div>
+                    </div>
+
+                    <form th:action="@{/login}" method="post">
+                        <div class="mb-3">
+                            <label for="username" class="form-label fw-bold small text-uppercase text-muted">Username</label>
+                            <input type="text" class="form-control form-control-lg bg-light" id="username" name="username" required autofocus>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="password" class="form-label fw-bold small text-uppercase text-muted">Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control form-control-lg bg-light border-end-0" id="password" name="password" required>
+                                <button class="btn btn-light border border-start-0" type="button" onclick="togglePassword('password', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <script>
+                            function togglePassword(inputId, btn) {
+                                const input = document.getElementById(inputId);
+                                const icon = btn.querySelector('i');
+                                if (input.type === "password") {
+                                    input.type = "text";
+                                    icon.classList.replace('bi-eye', 'bi-eye-slash');
+                                } else {
+                                    input.type = "password";
+                                    icon.classList.replace('bi-eye-slash', 'bi-eye');
+                                }
+                            }
+                        </script>
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold">Sign In</button>
+                        </div>
+
+                        <div class="text-center">
+                            <span class="text-muted">Don't have an account?</span>
+                            <a th:href="@{/register}" class="text-decoration-none fw-bold">Register here</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+<script>
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.replace('bi-eye', 'bi-eye-slash');
+        } else {
+            input.type = "password";
+            icon.classList.replace('bi-eye-slash', 'bi-eye');
+        }
+    }
+</script>

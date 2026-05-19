@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/main_layout}"> 
+<head>
+    <title th:text="${session.sessionId == null ? 'Create Session' : 'Edit Session'}">Session Form</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold text-primary mb-1">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        <span th:text="${session.sessionId == null ? 'Schedule New Session' : 'Edit Session Details'}"></span>
+                    </h2>
+                    <p class="text-muted">Fill in the details below to configure the conference session.</p>
+                </div>
+                
+                <div class="btn-group">
+                    <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/schedule}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Schedule
+                    </a>
+                    <a sec:authorize="hasRole('CHAIR')" th:href="@{/chair/dashboard}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-body p-5">
+                    
+                    <div th:if="${errorMessage}" class="alert alert-danger d-flex align-items-center mb-4" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2"></i>
+                        <div th:text="${errorMessage}">Error message...</div>
+                    </div>
+
+                    <form th:action="@{/sessions/save}" th:object="${session}" method="post">
+                        
+                        <input type="hidden" th:field="*{sessionId}" />
+
+                        <h5 class="text-uppercase text-muted fw-bold mb-3 small border-bottom pb-2">Basic Information</h5>
+                        
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-8">
+                                <label class="form-label fw-bold">Session Title <span class="text-danger">*</span></label>
+                                <div class="input-group has-validation">
+                                    <span class="input-group-text bg-light"><i class="bi bi-type-h1"></i></span>
+                                    <input type="text" th:field="*{title}" 
+                                           class="form-control form-control-lg" 
+                                           th:classappend="${#fields.hasErrors('title')} ? 'is-invalid' : ''"
+                                           placeholder="e.g. The Future of AI in Healthcare">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">
+                                        Title Error
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4" sec:authorize="hasRole('ADMIN')">
+                                <label class="form-label fw-bold">Status</label>
+                                <select th:field="*{status}" class="form-select form-select-lg">
+                                    <option th:each="st : ${T(com.project5.rcrsms.Entity.Session.SessionStatus).values()}" 
+                                            th:value="${st}" 
+                                            th:text="${st}"></option>
+                                </select>
+                            </div>
+                            
+                            <input type="hidden" th:field="*{status}" sec:authorize="!hasRole('ADMIN')" />
+
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Abstract / Description (Optional)</label>
+                                <textarea th:field="*{proposalAbstract}" 
+                                            class="form-control" 
+                                            rows="4" 
+                                            th:classappend="${#fields.hasErrors('proposalAbstract')} ? 'is-invalid' : ''"
+                                            placeholder="Enter a brief summary (leave blank for breaks or ceremonies)..."></textarea>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('proposalAbstract')}" th:errors="*{proposalAbstract}">
+                                    Abstract Error
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="text-uppercase text-muted fw-bold mb-3 small border-bottom pb-2 mt-5">Logistics & Assignment</h5>
+
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Conference <span class="text-danger">*</span></label>
+                                <div class="input-group has-validation">
+                                    <span class="input-group-text bg-light"><i class="bi bi-globe"></i></span>
+                                    <select th:field="*{conference}" 
+                                            class="form-select" 
+                                            th:classappend="${#fields.hasErrors('conference')} ? 'is-invalid' : ''">
+                                        <option value="">-- Select Conference --</option>
+                                        <option th:each="c : ${conferences}" 
+                                                th:value="${c.conferenceId}" 
+                                                th:text="${c.name}"></option>
+                                    </select>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('conference')}" th:errors="*{conference}">
+                                        Conference Error
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Date & Time <span class="text-danger">*</span></label>
+                                <div class="input-group has-validation">
+                                    <span class="input-group-text bg-light"><i class="bi bi-calendar-event"></i></span>
+                                    <input type="datetime-local" th:field="*{sessionTime}" 
+                                           class="form-control"
+                                           th:classappend="${#fields.hasErrors('sessionTime')} ? 'is-invalid' : ''"
+                                           th:value="${session.sessionTime != null ? #temporals.format(session.sessionTime, 'yyyy-MM-dd''T''HH:mm') : ''}">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('sessionTime')}" th:errors="*{sessionTime}">
+                                        Time Error
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Assigned Room (Optional)</label> 
+                                    <div class="input-group has-validation">
+                                        <span class="input-group-text bg-light"><i class="bi bi-door-open"></i></span>
+                                        <select th:field="*{room}" 
+                                                class="form-select"
+                                                th:classappend="${#fields.hasErrors('room')} ? 'is-invalid' : ''">
+                                                <option value="">-- No Room Assigned --</option>
+                                                <option th:each="r : ${rooms}" 
+                                                        th:value="${r.roomId}" 
+                                                        th:text="${r.name} + ' (Cap: ' + ${r.capacity} + ')'"></option>
+                                        </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('room')}" th:errors="*{room}">
+                                            Room Error
+                                        </div>
+                                    </div>
+                            </div>
+
+                            <div class="col-md-6" sec:authorize="hasRole('ADMIN')">
+                                <label class="form-label fw-bold text-success">Assign Session Chair</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-success text-white"><i class="bi bi-person-badge"></i></span>
+                                    <select th:field="*{chair}" class="form-select">
+                                        <option value="">-- Unassigned --</option>
+                                        <option th:each="u : ${chairs}" 
+                                                th:value="${u.userId}" 
+                                                th:text="${u.username}"></option>
+                                    </select>
+                                </div>
+                                <div class="form-text">Only users with 'CHAIR' roles appear here.</div>
+                            </div>
+                            
+                            </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5 pt-3 border-top">
+                            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/schedule}" class="btn btn-light btn-lg px-4 text-muted">Cancel</a>
+                            <a sec:authorize="hasRole('CHAIR')" th:href="@{/chair/dashboard}" class="btn btn-light btn-lg px-4 text-muted">Cancel</a>
+                            
+                            <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold shadow-sm">
+                                <i class="bi bi-check-circle-fill me-2"></i>Save Session
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main_layout}">
+<head>
+    <title>Manage Participants</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle-fill me-2"></i><span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-warning text-opacity-75 mb-1">
+                <i class="bi bi-people-fill me-2"></i>User Management
+            </h2>
+            <p class="text-muted">Manage system users, participants, and roles.</p>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Username</th>
+                            <th>Role</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user : ${users}">
+                            <td class="ps-4 fw-bold" th:text="${user.username}">Username</td>
+                            <td>
+                                <span th:if="${user.role.name == 'ADMIN'}" class="badge bg-danger">ADMIN</span>
+                                <span th:if="${user.role.name == 'CHAIR'}" class="badge bg-success">CHAIR</span>
+                                <span th:if="${user.role.name == 'PARTICIPANT'}" class="badge bg-info text-dark">PARTICIPANT</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <a th:if="${user.username != #authentication.name}"
+                                   th:href="@{'/admin/users/delete/' + ${user.userId}}" 
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Permanently delete this user? This cannot be undone.');">
+                                    <i class="bi bi-trash-fill"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

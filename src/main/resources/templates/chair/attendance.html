@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main_layout}">
+<head>
+    <title>Attendance Sheet</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="d-flex justify-content-between align-items-end mb-5 mt-4">
+        <div>
+            <a th:href="@{/chair/dashboard}" class="btn btn-light text-muted border shadow-sm fw-bold rounded-pill px-4 mb-3">
+                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+            </a>
+            
+            <h2 class="fw-bold text-dark mb-1">
+                <i class="bi bi-clipboard-check me-2 text-primary"></i>Attendance Sheet
+            </h2>
+            <p class="text-muted fs-5 mb-0">
+                Session: <span class="fw-bold text-primary" th:text="${currentSession.title}">Session Title</span>
+            </p>
+        </div>
+        
+        <div class="d-flex gap-3">
+            <div class="card border-0 shadow-sm px-4 py-3 bg-success bg-opacity-10 text-success rounded-4 text-center">
+                <span class="small fw-bold text-uppercase d-block mb-1 opacity-75">Present</span>
+                <span class="fs-3 fw-bold" th:text="${presentCount}">0</span>
+            </div>
+            <div class="card border-0 shadow-sm px-4 py-3 bg-light text-dark rounded-4 text-center">
+                <span class="small fw-bold text-uppercase d-block mb-1 opacity-75">Total</span>
+                <span class="fs-3 fw-bold" th:text="${currentSession.registrations.size()}">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-uppercase text-secondary fw-bold small">
+                    <tr>
+                        <th class="ps-5 py-3 border-bottom">Participant Name</th>
+                        <th class="py-3 border-bottom">Registration Date</th>
+                        <th class="py-3 border-bottom">Current Status</th>
+                        <th class="text-end pe-5 py-3 border-bottom">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="reg : ${currentSession.registrations}" class="border-bottom">
+                        
+                        <td class="ps-5 py-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 48px; height: 48px; font-size: 1.2rem;">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold text-dark" th:text="${reg.user.username}">Username</h6>
+                                    <span class="badge bg-light text-secondary border fw-normal mt-1">Participant</span>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="py-4 text-muted">
+                            <i class="bi bi-calendar3 me-2 opacity-50"></i>
+                            <span th:text="${#temporals.format(reg.registrationDate, 'dd MMM yyyy')}">Date</span>
+                        </td>
+
+                        <td class="py-4">
+                            <span th:if="${reg.attended}" class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-pill">
+                                <i class="bi bi-check-circle-fill me-2"></i>Present
+                            </span>
+                            <span th:unless="${reg.attended}" class="badge bg-secondary bg-opacity-10 text-secondary border px-3 py-2 rounded-pill">
+                                <i class="bi bi-circle me-2"></i>Absent
+                            </span>
+                        </td>
+
+                        <td class="text-end pe-5 py-4">
+                            <form th:action="@{'/registrations/attendance/' + ${reg.registrationId}}" method="post">
+                                
+                                <button th:if="${!reg.attended}" type="submit" 
+                                        class="btn btn-outline-success fw-bold px-4 py-2 shadow-sm rounded-pill transition-hover">
+                                    <i class="bi bi-check-lg me-1"></i> Check In
+                                </button>
+                                
+                                <button th:if="${reg.attended}" type="submit" 
+                                        class="btn btn-outline-secondary fw-bold px-4 py-2 shadow-sm rounded-pill transition-hover">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Undo
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div th:if="${#lists.isEmpty(currentSession.registrations)}" class="text-center py-5">
+                <div class="bg-light rounded-circle d-inline-flex p-4 mb-3">
+                    <i class="bi bi-people fs-1 text-secondary opacity-50"></i>
+                </div>
+                <h4 class="fw-bold text-dark">No participants yet</h4>
+                <p class="text-muted">Users need to register for this session first.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+
+<script>
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.replace('bi-eye', 'bi-eye-slash');
+        } else {
+            input.type = "password";
+            icon.classList.replace('bi-eye-slash', 'bi-eye');
+        }
+    }
+</script>

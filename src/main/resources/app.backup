@@ -1,0 +1,11 @@
+spring.application.name=rcrsms
+server.port = 8080
+spring.datasource.username=root
+spring.datasource.password=Lechat1038!
+spring.datasource.url=jdbc:mysql://localhost:3306/project5_rcrsms
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.flyway.enabled=true
+spring.flyway.url=jdbc:mysql://localhost:3306/project5_rcrsms
+spring.flyway.user=root
+spring.flyway.password=Lechat1038!
+spring.flyway.locations=classpath:db/migrations

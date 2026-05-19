@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main_layout}">
+<head>
+    <title>Room Management</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-primary mb-1">
+                <i class="bi bi-geo-alt-fill me-2"></i>Room Management
+            </h2>
+            <p class="text-muted">Manage conference venues and capacities</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="mb-0 fw-bold text-success">
+                        <i class="bi bi-plus-circle me-2"></i>Add New Room
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form th:action="@{/admin/rooms/save}" th:object="${newRoom}" method="post">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-uppercase small text-muted">Room Name</label>
+                            <input type="text" class="form-control" th:field="*{name}" 
+                                   th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                                   placeholder="e.g. Conference Hall A" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name Error</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-uppercase small text-muted">Location</label>
+                            <input type="text" class="form-control" th:field="*{location}" 
+                                   th:classappend="${#fields.hasErrors('location')} ? 'is-invalid' : ''"
+                                   placeholder="e.g. Building 1, Floor 2" required>
+                             <div class="invalid-feedback" th:if="${#fields.hasErrors('location')}" th:errors="*{location}">Location Error</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-uppercase small text-muted">Capacity</label>
+                            <div class="input-group has-validation">
+                                <span class="input-group-text"><i class="bi bi-people"></i></span>
+                                <input type="number" class="form-control" th:field="*{capacity}" 
+                                       th:classappend="${#fields.hasErrors('capacity')} ? 'is-invalid' : ''"
+                                       placeholder="e.g. 50" min="1" required>
+                                
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('capacity')}" th:errors="*{capacity}">
+                                    Capacity Error
+                                </div>
+                            </div>
+                            <div class="form-text text-muted small" th:unless="${#fields.hasErrors('capacity')}">
+                                Maximum capacity is 1000 seats.
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success py-2 fw-bold">
+                                <i class="bi bi-check-lg me-1"></i> Create Room
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="bi bi-list-ul me-2"></i>Existing Rooms
+                    </h5>
+                    <span class="badge bg-primary rounded-pill" th:text="${rooms.size()} + ' Rooms'">0 Rooms</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Room Name</th>
+                                    <th>Location</th>
+                                    <th>Capacity</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="room : ${rooms}">
+                                    <td class="ps-4">
+                                        <div class="fw-bold text-dark" th:text="${room.name}">Hall A</div>
+                                        <small class="text-muted">ID: <span th:text="${room.roomId}">1</span></small>
+                                    </td>
+                                    <td>
+                                        <span class="d-inline-flex align-items-center text-secondary">
+                                            <i class="bi bi-geo-alt me-1"></i>
+                                            <span th:text="${room.location}">Building 1</span>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">
+                                            <i class="bi bi-people-fill me-1 text-primary"></i>
+                                            <span th:text="${room.capacity}">100</span>
+                                        </span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <a th:href="@{/admin/rooms/delete/{id}(id=${room.roomId})}" 
+                                           class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('Are you sure you want to delete this room?');"
+                                           title="Delete Room">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${rooms.empty}">
+                                    <td colspan="4" class="text-center py-5 text-muted">
+                                        <i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>
+                                        No rooms have been added yet.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

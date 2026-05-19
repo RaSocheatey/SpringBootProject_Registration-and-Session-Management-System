@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout/main_layout :: head}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Denied</title>
+</head>
+
+<body>
+    
+    <div th:replace="~{layout/navbar :: navbar}"></div>
+
+    <div class="container text-center mt-5">
+        <div class="alert alert-danger p-5 shadow">
+            <h1 class="display-1 fw-bold">403</h1>
+            <h2 class="mb-3">Forbidden</h2>
+            <p class="lead">
+                Sorry, you do not have permission to view this page.
+            </p>
+            <hr>
+            <p>
+                Required Role: <span class="badge bg-danger">ADMIN</span> or <span class="badge bg-warning text-dark">CHAIR</span>
+            </p>
+            <a href="/" class="btn btn-primary mt-3">Go Back Home</a>
+        </div>
+    </div>
+
+    <div th:replace="~{layout/main_layout :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main_layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Conference</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Create New Conference</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show mb-4">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span th:text="${errorMessage}">Error message goes here</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    
+                    <form th:action="@{/conferences/save}" th:object="${conference}" method="post">
+                        
+                        <div class="mb-3">
+                            <label for="name" class="form-label fw-bold">Conference Name</label>
+                            <input type="text" class="form-control" id="name" th:field="*{name}" 
+                                   placeholder="e.g. Global Tech Summit 2025" required>
+                            <div class="text-danger small" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="location" class="form-label fw-bold">Location</label>
+                            <input type="text" class="form-control" id="location" th:field="*{location}" 
+                                   placeholder="e.g. Grand Hall, New York" required>
+                            <div class="text-danger small" th:if="${#fields.hasErrors('location')}" th:errors="*{location}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="startDate" class="form-label fw-bold">Start Date</label>
+                            <input type="date" class="form-control" id="startDate" th:field="*{startDate}" required>
+                            <div class="text-danger small" th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="endDate" class="form-label fw-bold">End Date</label>
+                            <input type="date" class="form-control" id="endDate" th:field="*{endDate}" required>
+                            <div class="text-danger small" th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}"></div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a th:href="@{/conferences}" class="btn btn-secondary me-md-2">Cancel</a>
+                            <button type="submit" class="btn btn-success px-4">Create Conference</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

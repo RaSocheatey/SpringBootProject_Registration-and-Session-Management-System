@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/main_layout}">
+<head>
+    <title th:text="${conference.name}">Conference Details</title>
+    
+    <style>
+        /* ... (Your existing styles remain unchanged) ... */
+        .hero-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .info-item {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .info-item:hover {
+            transform: translateY(-5px);
+        }
+        .info-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .session-list-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e5e7eb;
+            border-left: 5px solid #f5576c;
+            transition: all 0.3s ease;
+        }
+        .session-list-item:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateX(5px);
+        }
+        .status-badge {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(5px);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            color: white;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container main-container mt-4">
+        
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle-fill me-2"></i><span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="hero-card">
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <span class="status-badge">
+                    <i class="bi bi-clock-history me-2"></i>Upcoming Conference
+                </span>
+                
+                <a th:href="@{/conferences}" class="btn btn-sm btn-light rounded-pill px-3 shadow-sm">
+                    <i class="bi bi-arrow-left me-2"></i>Back to List
+                </a>
+            </div>
+            
+            <h1 class="display-4 fw-bold mb-3" th:text="${conference.name}">Conference Name</h1>
+            
+            <p class="lead opacity-90 mb-4">
+                Join us at <strong th:text="${conference.location}">Location</strong> 
+                starting on <span th:text="${#temporals.format(conference.startDate, 'MMM dd, yyyy')}">Date</span>.
+            </p>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-icon"><i class="bi bi-calendar-range"></i></div>
+                <h6 class="text-muted mb-1 text-uppercase small fw-bold">Dates</h6>
+                <p class="fw-bold mb-0 text-dark">
+                    <span th:text="${#temporals.format(conference.startDate, 'MMM dd')}">Start</span> - 
+                    <span th:text="${#temporals.format(conference.endDate, 'MMM dd, yyyy')}">End</span>
+                </p>
+            </div>
+            <div class="info-item">
+                <div class="info-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                <h6 class="text-muted mb-1 text-uppercase small fw-bold">Location</h6>
+                <p class="fw-bold mb-0 text-dark" th:text="${conference.location}">City, Country</p>
+            </div>
+            <div class="info-item">
+                <div class="info-icon"><i class="bi bi-people-fill"></i></div>
+                <h6 class="text-muted mb-1 text-uppercase small fw-bold">Sessions</h6>
+                <p class="fw-bold mb-0 text-dark">
+                    <span th:text="${sessions != null ? sessions.size() : 0}">0</span> Scheduled
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3"><i class="bi bi-info-circle-fill text-primary me-2"></i>About Event</h5>
+                        <p class="text-muted">
+                            This is a premier academic conference bringing together researchers, practitioners, 
+                            and students.
+                        </p>
+                        <hr>
+                        <small class="text-muted d-block mb-2">Venue Details:</small>
+                        <p class="fw-bold mb-0" th:text="${conference.location}">Location Name</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-4">
+                            <i class="bi bi-calendar-event-fill text-danger me-2"></i>Conference Sessions
+                        </h4>
+                        
+                        <div th:if="${sessions == null or sessions.empty}" class="text-center py-5 bg-light rounded-3">
+                            <i class="bi bi-calendar-x text-muted" style="font-size: 2rem;"></i>
+                            <p class="text-muted mt-2 mb-0">No approved sessions scheduled yet.</p>
+                        </div>
+
+                        <div th:each="s : ${sessions}" class="session-list-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="fw-bold mb-1" th:text="${s.title}">Session Title</h5>
+                                    <div class="text-muted small">
+                                        <i class="bi bi-clock me-1"></i>
+                                        <span th:text="${#temporals.format(s.sessionTime, 'MMM dd, HH:mm')}">Date</span>
+                                        <span class="mx-2">•</span>
+                                        <i class="bi bi-person-badge me-1"></i>
+                                        <span th:text="${s.chair != null ? s.chair.username : 'No Chair'}">Chair</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex gap-2 align-items-center">
+                                    <a th:href="@{/sessions/edit/{id}(id=${s.sessionId})}" 
+                                       sec:authorize="hasRole('ADMIN')"
+                                       class="btn btn-outline-dark btn-sm rounded-pill px-3">Edit</a>
+
+                                    <div sec:authorize="isAuthenticated()">
+                                        <button th:if="${#lists.contains(s.registrations.![user.username], #authentication.name)}"
+                                                class="btn btn-sm btn-success rounded-pill px-3" disabled>
+                                            <i class="bi bi-check2-circle me-1"></i> Registered
+                                        </button>
+
+                                        <form th:unless="${#lists.contains(s.registrations.![user.username], #authentication.name)}"
+                                              th:action="@{/registrations/join/{id}(id=${s.sessionId})}" method="post">
+                                            <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3">
+                                                <i class="bi bi-plus-circle me-1"></i> Register
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <a href="/login" sec:authorize="!isAuthenticated()" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                        Login to Join
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

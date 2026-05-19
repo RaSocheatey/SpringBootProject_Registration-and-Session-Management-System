@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/main_layout}">
+<head>
+    <title>Conferences</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    
+    <div class="container py-4">
+        
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show shadow-sm">
+            <i class="bi bi-check-circle-fill me-2"></i><span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show shadow-sm">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-0">Conferences</h2>
+                <p class="text-muted small mb-0">Browse and join academic events</p>
+            </div>
+            
+            <div sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/conferences/create}" class="btn btn-success rounded-pill px-4 shadow-sm fw-bold">
+                    <i class="bi bi-plus-lg me-1"></i> New Conference
+                </a>
+            </div>
+        </div>
+
+        <ul class="nav nav-pills mb-4 border-bottom pb-3">
+            <li class="nav-item">
+                <a class="nav-link rounded-pill px-3 me-2" 
+                   th:classappend="${currentFilter == 'upcoming' || currentFilter == null} ? 'active bg-success' : 'text-muted'"
+                   th:href="@{/conferences(filter='upcoming')}">Upcoming</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link rounded-pill px-3 me-2" 
+                   th:classappend="${currentFilter == 'ongoing'} ? 'active bg-primary' : 'text-muted'"
+                   th:href="@{/conferences(filter='ongoing')}">Ongoing</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link rounded-pill px-3 me-2" 
+                   th:classappend="${currentFilter == 'past'} ? 'active bg-secondary' : 'text-muted'"
+                   th:href="@{/conferences(filter='past')}">Past Events</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link rounded-pill px-3" 
+                   th:classappend="${currentFilter == 'all'} ? 'active bg-dark' : 'text-muted'"
+                   th:href="@{/conferences(filter='all')}">All History</a>
+            </li>
+        </ul>
+
+        <div th:if="${conferences.empty}" class="text-center py-5">
+            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                <i class="bi bi-calendar-x fs-1 text-muted"></i>
+            </div>
+            <h5 class="fw-bold text-muted">No conferences found</h5>
+            <p class="text-secondary small">There are no events in this category right now.</p>
+            <a th:href="@{/conferences(filter='all')}" class="btn btn-outline-secondary btn-sm mt-2 rounded-pill">View All Events</a>
+        </div>
+
+        <div class="row g-4" th:unless="${conferences.empty}">
+            <div class="col-md-6 col-lg-4" th:each="conference : ${conferences}">
+                <div class="card h-100 shadow-sm border-0 hover-lift" style="transition: transform 0.2s;">
+                    
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span th:if="${conference.endDate.isBefore(T(java.time.LocalDate).now())}" 
+                                  class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill">Completed</span>
+                            <span th:unless="${conference.endDate.isBefore(T(java.time.LocalDate).now())}" 
+                                  class="badge bg-success bg-opacity-10 text-success rounded-pill">Active</span>
+                            
+                            <small class="text-muted fw-bold">
+                                <i class="bi bi-calendar3 me-1"></i>
+                                <span th:text="${conference.startDate}">2025-01-01</span>
+                            </small>
+                        </div>
+
+                        <h5 class="fw-bold text-dark mb-2" th:text="${conference.name}">Conference Name</h5>
+
+                        <div class="mb-3">
+                            <i class="bi bi-geo-alt-fill text-danger me-2"></i>
+                            <span th:text="${conference.location}" class="text-muted small fw-bold text-uppercase">Location</span>
+                        </div>
+
+                        <div class="d-flex align-items-center bg-light rounded p-2 mb-3">
+                            <i class="bi bi-people-fill text-primary me-2"></i>
+                            <span class="small fw-bold text-dark">
+                                <span th:text="${conference.sessions != null ? conference.sessions.?[status.name() == 'APPROVED'].size() : 0}">0</span> 
+                                Sessions Available
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-white border-0 pb-4 pt-0">
+                        <a th:href="@{/conferences/{id}(id=${conference.conferenceId})}" 
+                           class="btn btn-outline-success w-100 fw-bold rounded-pill">
+                           View Details
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

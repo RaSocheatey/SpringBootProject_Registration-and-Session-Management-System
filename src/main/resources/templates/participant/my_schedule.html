@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main_layout}">
+<head>
+    <title>My Schedule</title>
+    <style>
+        .custom-alert {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            animation: slideDown 0.5s ease;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .schedule-card {
+            transition: transform 0.2s ease;
+            border-left: 5px solid #0d6efd;
+        }
+        .schedule-card:hover { transform: scale(1.01); }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="container mt-3">
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show custom-alert d-flex align-items-center p-3" role="alert">
+            <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+            <div>
+                <strong class="d-block">Success!</strong>
+                <span th:text="${successMessage}">Action completed successfully.</span>
+            </div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-5 mt-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">
+                <i class="bi bi-calendar-check-fill me-2 text-primary"></i>My Schedule
+            </h2>
+            <p class="text-muted fs-5 mb-0">Manage your personalized conference agenda.</p>
+        </div>
+        <a th:href="@{/sessions}" class="btn btn-primary fw-bold rounded-pill px-4 py-2 shadow-sm">
+            <i class="bi bi-plus-lg me-2"></i>Add More Sessions
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mb-3" th:each="reg : ${registrations}">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden schedule-card mb-3">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 text-center border-end">
+                            <h3 class="fw-bold mb-0 text-dark" th:text="${#temporals.format(reg.session.sessionTime, 'dd')}">15</h3>
+                            <div class="text-uppercase text-danger fw-bold small" th:text="${#temporals.format(reg.session.sessionTime, 'MMM')}">MAY</div>
+                            <div class="text-muted small mt-1" th:text="${#temporals.format(reg.session.sessionTime, 'HH:mm')}">10:00</div>
+                        </div>
+
+                        <div class="col-md-7 ps-md-4 mt-3 mt-md-0">
+                            <span class="badge bg-light text-primary border border-primary border-opacity-25 mb-2" 
+                                  th:text="${reg.session.conference.name}">Conference</span>
+                            <a th:href="@{'/sessions/view/' + ${reg.session.sessionId}}" class="text-decoration-none">
+                                <h4 class="fw-bold text-dark mb-2" th:text="${reg.session.title}">Session Title</h4>
+                            </a>
+                            <div class="text-muted small">
+                                <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                                <span th:text="${reg.session.room != null ? reg.session.room.name : 'TBD'}">Room</span>
+                                <span class="mx-2">|</span>
+                                <i class="bi bi-person-fill text-primary me-1"></i>
+                                <span th:text="${reg.session.chair != null ? reg.session.chair.username : 'Chair TBD'}">Chair</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 text-md-end mt-3 mt-md-0 pe-md-4">
+                            <button type="button" class="btn btn-outline-danger px-4 py-2 rounded-pill fw-bold" 
+                                    data-bs-toggle="modal" th:data-bs-target="'#cancelModal' + ${reg.registrationId}">
+                                <i class="bi bi-x-circle me-1"></i> Unregister
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" th:id="'cancelModal' + ${reg.registrationId}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow rounded-4">
+                        <div class="modal-body p-5 text-center">
+                            <div class="mb-4 text-danger">
+                                <i class="bi bi-exclamation-circle" style="font-size: 4rem;"></i>
+                            </div>
+                            <h3 class="fw-bold mb-3">Are you sure?</h3>
+                            <p class="text-muted mb-4">You are about to unregister from <br><strong th:text="${reg.session.title}">Session</strong>.</p>
+                            <div class="d-flex justify-content-center gap-3">
+                                <button type="button" class="btn btn-light px-4 fw-bold rounded-pill" data-bs-dismiss="modal">Go Back</button>
+                                <form th:action="@{'/registrations/cancel/' + ${reg.registrationId}}" method="post">
+                                    <button type="submit" class="btn btn-danger px-4 fw-bold rounded-pill">Yes, Unregister</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(registrations)}" class="col-12 text-center py-5">
+            <div class="bg-light rounded-circle d-inline-flex p-5 mb-4">
+                <i class="bi bi-calendar2-x fs-1 text-secondary opacity-25"></i>
+            </div>
+            <h3 class="fw-bold text-dark">Your schedule is empty</h3>
+            <p class="text-muted fs-5 mb-4">Register for sessions to see them here.</p>
+            <a th:href="@{/sessions}" class="btn btn-primary btn-lg px-5 rounded-pill shadow">Browse Catalog</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
